@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="NewTor.CustomControls.TorrentTemplate"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NewTor.CustomControls"
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="600">
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="25*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid Column="0">
+            <TextBlock
+                        Margin="5"
+                        FontSize="19"
+                        Foreground="Black"
+                        TextWrapping="Wrap"
+                        TextTrimming="None"
+                        Text="{Binding Text}"/>
+        </Grid>
+        
+        <Grid Column="1">
+            <controls:MetroProgressBar Name="DownloadProgress" Foreground="DarkOliveGreen" Height="15" />
+            <TextBlock Text="34%"  TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="Beige"
+                        TextWrapping="Wrap"
+                        TextTrimming="None" ></TextBlock>
+
+        </Grid>
+        
+        <Grid Column="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50*"/>
+                <ColumnDefinition Width="50*"/>
+            </Grid.ColumnDefinitions>
+        </Grid>
+    </Grid>
+</UserControl>

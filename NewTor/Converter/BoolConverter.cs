@@ -8,21 +8,19 @@ using System.Windows.Data;
 
 namespace NewTor.Converter
 {
-    public class PercentConverter : IValueConverter
+    public class BoolConverter : IValueConverter
     {
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            try
-            {
-                return string.Format("{0:0.00}%", (System.Convert.ToInt64(value) * 100));
-            }
-            catch { }
-            return "";
+            var boolValue = value != null && value is bool && (bool)value;
+
+            return boolValue ? "Si" : "No";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return value != null && value.ToString() == "Si";
         }
     }
 }

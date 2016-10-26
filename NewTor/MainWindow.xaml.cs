@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Libtor.Model;
 using LiteDB;
+using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Ragnar;
 
@@ -24,20 +25,41 @@ namespace NewTor
     /// <summary>
     /// Logica di interazione per MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
-        Libtor.Service.Session Session = new Libtor.Service.Session();
+        private Libtor.Service.Session Session = null;
 
+        public Libtor.Service.Session TorrentSession => Session;
+
+        private static Frame _masterFrame = null;
+        private bool _isNavigatingBack = false;
         public MainWindow()
         {
             InitializeComponent();
-            Loaded += MainWindow_Loaded;
+
+            _masterFrame = MasterFrame;
+            _masterFrame.Navigated += _masterFrame_Navigated;
+            _masterFrame.Navigating += _masterFrame_Navigating;
+            this.Loaded += MainWindow_Loaded;
         }
+
+        private void _masterFrame_Navigating(object sender, NavigatingCancelEventArgs e) => this._isNavigatingBack = (e.NavigationMode == NavigationMode.Back);
+
+        private void _masterFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            if (_isNavigatingBack)
+            {
+
+            }
+        }
+
+        public static void Navigate(object page, object extraData = null) => _masterFrame?.Navigate(page, extraData);
+
+        internal static void GoBack() => _masterFrame?.GoBack();
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            this.btnOpen.TouchDown += btnOpen_TouchDown;
-            this.btnOpen.Click += BtnOpen_Click;
+            this.Session = new Libtor.Service.Session();
             this.Session.Start();
             this.Session.OnAlert += Session_OnAlert;
             this.Session.OnTorrentAddedAlert += Session_OnTorrentAddedAlert;
@@ -60,6 +82,7 @@ namespace NewTor
                     this.Session.AddTorrent(par);
                 }
             }
+            this.MasterFrame.Navigate(new TorrentPage(this));
         }
 
         private void Session_OnStatsAlert(object sender, Ragnar.StatsAlert e)
@@ -88,45 +111,6 @@ namespace NewTor
 
         private void Session_OnAlert(object sender, Ragnar.Alert e)
         {
-
-        }
-
-        private void BtnOpen_Click(object sender, RoutedEventArgs e)
-        {
-            this.HandleBtnOpen();
-        }
-
-        private void btnOpen_TouchDown(object sender, TouchEventArgs e)
-        {
-            this.HandleBtnOpen();
-        }
-
-        private void HandleBtnOpen()
-        {
-            var dialog = new OpenFileDialog()
-            {
-                Filter = "Torrents (*.torrent)|*.torrent",
-                Title = "Select a .torrent file to open",
-                Multiselect = false,
-            };
-            var d = dialog.ShowDialog(this);
-            if (d.HasValue && d == true)
-            {
-                var par = new AddTorrentParams { SavePath = "C:/Downloads", TorrentInfo = new TorrentInfo(dialog.FileName) };
-
-                if (!this.Session.TorrentExist(par))
-                {
-                    this.Session.AddTorrent(par);
-                    using (var db = new LiteDatabase("Test.db"))
-                    {
-                        var fadded = db.FileStorage.Upload(Guid.NewGuid().ToString(), dialog.FileName);
-                        var cools = db.GetCollection<Torrent>("Torrents");
-                        cools.Insert(new Torrent { Name = par.TorrentInfo.Name, UTC_CreationDate = DateTime.UtcNow, File = fadded.Id });
-                    }
-                }
-
-
-            }
 
         }
     }

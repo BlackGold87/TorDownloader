@@ -12,17 +12,22 @@ namespace NewTor.Converter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var byteCount = (int)value;
-            string[] suf = { "B/s", "KB/s", "MB/s", "GB/s", "TB/s", "PB/s", "EB/s" };
+            try
+            {
+                var byteCount = System.Convert.ToInt64(value);
+                string[] suf = { "B/s", "KB/s", "MB/s", "GB/s", "TB/s", "PB/s", "EB/s" };
 
-            if (byteCount == 0)
-                return "0 " + suf[0];
+                if (byteCount == 0)
+                    return "0" + suf[0];
 
-            var bytes = Math.Abs(byteCount);
-            var place = System.Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            var num = Math.Round(bytes / Math.Pow(1024, place), 1);
+                var bytes = Math.Abs(byteCount);
+                var place = System.Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+                var num = Math.Round(bytes / Math.Pow(1024, place), 1);
 
-            return (Math.Sign(byteCount) * num) + suf[place];
+                return (Math.Sign(byteCount) * num) + suf[place];
+            }
+            catch { }
+            return "";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
