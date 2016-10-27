@@ -4,16 +4,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NewTor.CustomControls"
+             xmlns:converters="clr-namespace:NewTor.Converter"
              xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="600">
+
+    <UserControl.Resources>
+        <converters:PercentConverter x:Key="PercentConverter"/>
+        <converters:PercentToTextConverter x:Key="PercentToTextConverter"/>
+        <converters:SpeedConverter x:Key="SpeedConverter"/>
+    </UserControl.Resources>
+
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25*"/>
             <ColumnDefinition Width="50*"/>
             <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
-        
+
         <Grid Column="0">
             <TextBlock
                         Margin="5"
@@ -21,24 +29,47 @@
                         Foreground="Black"
                         TextWrapping="Wrap"
                         TextTrimming="None"
-                        Text="{Binding Text}"/>
+                        Text="{Binding Name}"/>
         </Grid>
-        
+
         <Grid Column="1">
-            <controls:MetroProgressBar Name="DownloadProgress" Foreground="DarkOliveGreen" Height="15" />
-            <TextBlock Text="34%"  TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+            <controls:MetroProgressBar Name="DownloadProgress" Foreground="DarkOliveGreen" Height="15" Value="{Binding Progress,Mode=OneWay, Converter={StaticResource PercentConverter}}"/>
+            <TextBlock Text="{Binding State ,Mode=OneWay}"  TextAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="Beige"
+                        TextWrapping="Wrap"
+                        TextTrimming="None" ></TextBlock> 
+            <TextBlock Text="{Binding Progress ,Mode=OneWay, Converter={StaticResource PercentToTextConverter}}"  TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
                         FontSize="12"
                         Foreground="Beige"
                         TextWrapping="Wrap"
                         TextTrimming="None" ></TextBlock>
 
         </Grid>
-        
+
         <Grid Column="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50*"/>
                 <ColumnDefinition Width="50*"/>
             </Grid.ColumnDefinitions>
+            <Grid Column="0">
+                <TextBlock
+                        Margin="5"
+                        FontSize="19"
+                        Foreground="Black"
+                        TextWrapping="Wrap"
+                        TextTrimming="None"
+                        Text="{Binding DownloadRate,Mode=OneWay, Converter={StaticResource SpeedConverter}}"/>
+            </Grid>
+            <Grid Column="1">
+                <TextBlock
+                        Margin="5"
+                        FontSize="19"
+                        Foreground="Black"
+                        TextWrapping="Wrap"
+                        TextTrimming="None"
+                       Text="{Binding UploadRate , Mode=OneWay , Converter={StaticResource SpeedConverter}}"/>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

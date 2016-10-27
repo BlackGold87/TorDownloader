@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\BaseModel.cs" />
+    <Compile Include="Model\SessionState.cs" />
     <Compile Include="Model\Torrent.cs" />
     <Compile Include="Worker\BackgroundWorker.cs">
       <SubType>Component</SubType>

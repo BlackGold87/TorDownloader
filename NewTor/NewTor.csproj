@@ -76,11 +76,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converter\BoolConverter.cs" />
+    <Compile Include="CustomComponent\ObservableObject.cs" />
     <Compile Include="CustomControls\AutoScrollingListView.cs" />
     <Compile Include="CustomControls\TorrentTemplate.xaml.cs">
       <DependentUpon>TorrentTemplate.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TorrentPage.xaml.cs">
+    <Compile Include="Datasource\TorLiteDatabase.cs" />
+    <Compile Include="ViewModel\TorrentModel.cs" />
+    <Compile Include="View\TorrentPage.xaml.cs">
       <DependentUpon>TorrentPage.xaml</DependentUpon>
     </Compile>
     <Page Include="CustomControls\TorrentTemplate.xaml">
@@ -102,7 +105,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TorrentPage.xaml">
+    <Page Include="View\TorrentPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -18,6 +18,7 @@ using Libtor.Model;
 using LiteDB;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
+using NewTor.View;
 using Ragnar;
 
 namespace NewTor
@@ -27,9 +28,6 @@ namespace NewTor
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        private Libtor.Service.Session Session = null;
-
-        public Libtor.Service.Session TorrentSession => Session;
 
         private static Frame _masterFrame = null;
         private bool _isNavigatingBack = false;
@@ -41,7 +39,10 @@ namespace NewTor
             _masterFrame.Navigated += _masterFrame_Navigated;
             _masterFrame.Navigating += _masterFrame_Navigating;
             this.Loaded += MainWindow_Loaded;
+            Closing += MainWindow_Closing;
         }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) => this.TorrentModel.Dispose();
 
         private void _masterFrame_Navigating(object sender, NavigatingCancelEventArgs e) => this._isNavigatingBack = (e.NavigationMode == NavigationMode.Back);
 
@@ -57,61 +58,7 @@ namespace NewTor
 
         internal static void GoBack() => _masterFrame?.GoBack();
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.Session = new Libtor.Service.Session();
-            this.Session.Start();
-            this.Session.OnAlert += Session_OnAlert;
-            this.Session.OnTorrentAddedAlert += Session_OnTorrentAddedAlert;
-            this.Session.OnTorrentCheckedAlert += Session_OnTorrentCheckedAlert;
-            this.Session.OnTorrentResumedAlert += Session_OnTorrentResumedAlert;
-            this.Session.OnStateChangedAlert += Session_OnStateChangedAlert;
-            this.Session.OnStateUpdateAlert += Session_OnStateUpdateAlert;
-            this.Session.OnStatsAlert += Session_OnStatsAlert;
-            using (var db = new LiteDB.LiteDatabase("Test.db"))
-            {
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e) => this.MasterFrame.Navigate(new TorrentPage(this));
 
-                var cools = db.GetCollection<Torrent>("Torrents");
-                foreach (Torrent torrent in cools.FindAll())
-                {
-                    MemoryStream ms = new MemoryStream();
-                    ms.Position = 0;
-                    db.FileStorage.Download(torrent.File, ms);
-                    ms.Position = 0;
-                    var par = new AddTorrentParams { SavePath = "C:/Downloads", TorrentInfo = new TorrentInfo(ms.GetBuffer()) };
-                    this.Session.AddTorrent(par);
-                }
-            }
-            this.MasterFrame.Navigate(new TorrentPage(this));
-        }
-
-        private void Session_OnStatsAlert(object sender, Ragnar.StatsAlert e)
-        {
-        }
-
-        private void Session_OnStateUpdateAlert(object sender, Ragnar.StateUpdateAlert e)
-        {
-        }
-
-        private void Session_OnStateChangedAlert(object sender, Ragnar.StateChangedAlert e)
-        {
-        }
-
-        private void Session_OnTorrentResumedAlert(object sender, Ragnar.TorrentResumedAlert e)
-        {
-        }
-
-        private void Session_OnTorrentCheckedAlert(object sender, Ragnar.TorrentCheckedAlert e)
-        {
-        }
-
-        private void Session_OnTorrentAddedAlert(object sender, Ragnar.TorrentAddedAlert e)
-        {
-        }
-
-        private void Session_OnAlert(object sender, Ragnar.Alert e)
-        {
-
-        }
     }
 }

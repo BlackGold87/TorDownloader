@@ -18,8 +18,10 @@ using LiteDB;
 using Microsoft.Win32;
 using Ragnar;
 using MahApps.Metro.Controls.Dialogs;
+using NewTor.Datasource;
+using NewTor.ViewModel;
 
-namespace NewTor
+namespace NewTor.View
 {
     /// <summary>
     /// Logica di interazione per TorrentPage.xaml
@@ -27,11 +29,11 @@ namespace NewTor
     public partial class TorrentPage : Page
     {
         private MainWindow ParentWindow = null;
-
         public TorrentPage(MainWindow _Parentwindow)
         {
             InitializeComponent();
             this.ParentWindow = _Parentwindow;
+            DataContext = this.ParentWindow.TorrentModel;
         }
 
         private async void FilesPanel_OnDropPanel_Drop(object sender, DragEventArgs e)
@@ -75,14 +77,14 @@ namespace NewTor
         {
             var par = new AddTorrentParams { SavePath = "C:/Downloads", TorrentInfo = info };
 
-            if (!this.ParentWindow.TorrentSession.TorrentExist(par))
+            if (!this.ParentWindow.TorrentModel.Session.TorrentExist(par))
             {
-                this.ParentWindow.TorrentSession.AddTorrent(par);
-                using (var db = new LiteDatabase("Test.db"))
+                this.ParentWindow.TorrentModel.Session.AddTorrent(par);
+                using (var db = new TorLiteDatabase())
                 {
                     var fadded = db.FileStorage.Upload(Guid.NewGuid().ToString(), filePath);
                     var cools = db.GetCollection<Torrent>("Torrents");
-                    cools.Insert(new Torrent { Name = par.TorrentInfo.Name, UTC_CreationDate = DateTime.UtcNow, File = fadded.Id });
+                    cools.Insert(new Torrent { Name = par.TorrentInfo.Name, UTC_CreationDate = DateTime.UtcNow, File = fadded.Id, Hash = par.TorrentInfo.InfoHash, Path = par.SavePath });
                 }
             }
         }

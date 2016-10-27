@@ -5,12 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewTor"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:viewModel="clr-namespace:NewTor.ViewModel"
         mc:Ignorable="d"
         Title="MainWindow"  >
+    <controls:MetroWindow.DataContext>
+        <viewModel:TorrentModel x:Name="TorrentModel" />
+
+    </controls:MetroWindow.DataContext>
     <Grid>
-        <Frame
+        <Grid.RowDefinitions>
+            <RowDefinition Height="11*"/>
+            <RowDefinition Height="241*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Row="1">
+            <Frame
             NavigationUIVisibility="Hidden"
-            x:Name="MasterFrame"/>
+            x:Name="MasterFrame" Grid.RowSpan="2"/>
+        </Grid>
+      
     </Grid>
 </controls:MetroWindow>
 

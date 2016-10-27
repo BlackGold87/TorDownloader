@@ -8,7 +8,7 @@ using Ragnar;
 
 namespace Libtor.Service
 {
-    public class Session
+    public class Session : IDisposable
     {
         private readonly Ragnar.Session _session = null;
         private readonly Worker.BackgroundWorker workerAlert = null;
@@ -19,6 +19,7 @@ namespace Libtor.Service
         public event EventHandler<StateUpdateAlert> OnStateUpdateAlert;
         public event EventHandler<StateChangedAlert> OnStateChangedAlert;
         public event EventHandler<StatsAlert> OnStatsAlert;
+        public event EventHandler<SaveResumeDataAlert> OnSaveResumeDataAlert;
         public event EventHandler<Alert> OnAlert;
 
         public Session()
@@ -67,6 +68,7 @@ namespace Libtor.Service
                     else if (alert is TorrentResumedAlert) OnTorrentResumedAlert?.Invoke(this, alert as TorrentResumedAlert);
                     else if (alert is StatsAlert) OnStatsAlert?.Invoke(this, alert as StatsAlert);
                     else if (alert is TorrentCheckedAlert) OnTorrentCheckedAlert?.Invoke(this, alert as TorrentCheckedAlert);
+                    else if (alert is SaveResumeDataAlert) OnSaveResumeDataAlert?.Invoke(this, alert as SaveResumeDataAlert);
                     else OnAlert?.Invoke(this, alert);
                 }
             }
@@ -81,6 +83,22 @@ namespace Libtor.Service
         public bool TorrentExist(AddTorrentParams @params)
         {
             return this._session.FindTorrent(@params.TorrentInfo.InfoHash) != null;
+        }
+
+        public byte[] SaveState()
+        {
+            return this._session.SaveState();
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                this.Stop();
+                this._session.Dispose();
+                this.workerAlert.Dispose();
+            }
+            catch { }
         }
     }
 }
