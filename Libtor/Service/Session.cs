@@ -12,6 +12,7 @@ namespace Libtor.Service
     {
         private readonly Ragnar.Session _session = null;
         private readonly Worker.BackgroundWorker workerAlert = null;
+        private readonly Fingerprint fingerprint = new Fingerprint("TOR", 0, 0, 1, 0);
 
         public event EventHandler<TorrentAddedAlert> OnTorrentAddedAlert;
         public event EventHandler<TorrentResumedAlert> OnTorrentResumedAlert;
@@ -24,15 +25,22 @@ namespace Libtor.Service
 
         public Session()
         {
-            this._session = new Ragnar.Session(new Fingerprint("TOR", 0, 0, 1, 0));
+            this._session = new Ragnar.Session(this.fingerprint);
             this.workerAlert = new Worker.BackgroundWorker(_alertEventHandler, true);
+            this._session.SetAlertMask(SessionAlertCategory.All);
+            this.workerAlert.Run();
         }
 
         public void Start()
         {
             _session.ListenOn(6881, 6889);
-            this._session.SetAlertMask(SessionAlertCategory.All);
-            this.workerAlert.Run();
+
+        }
+
+        public void Start(byte[] state)
+        {
+            this._session.LoadState(state);
+            this.Start();
         }
 
         public void Stop()

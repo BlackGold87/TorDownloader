@@ -8,6 +8,6 @@ namespace Libtor.Model
 {
     public class SessionState : BaseModel
     {
-        public byte[] State { get; set; }
+        public string  State { get; set; }
     }
 }

@@ -47,7 +47,19 @@ namespace NewTor.ViewModel
         public TorrentModel()
         {
             Session = new Session();
-            Session.Start();
+            using (var db = new TorLiteDatabase())
+            {
+                var colls = db.GetCollection<SessionState>("SessionState");
+                var state = colls.FindAll().FirstOrDefault();
+                if (state != null)
+                {
+                    var ms = new MemoryStream();
+                    db.FileStorage.Download(state.State, ms);
+                    ms.Position = 0;
+                    Session.Start(ms.GetBuffer());
+                }
+                else Session.Start();
+            }
 
             this.Session.OnAlert += Session_OnAlert;
             this.Session.OnTorrentAddedAlert += Session_OnTorrentAddedAlert;
@@ -64,11 +76,16 @@ namespace NewTor.ViewModel
                 var cools = db.GetCollection<Torrent>("Torrents");
                 foreach (Torrent torrent in cools.FindAll())
                 {
-                    //MemoryStream ms = new MemoryStream();
-                    //ms.Position = 0;
-                    //db.FileStorage.Download(torrent.File, ms);
-                    //ms.Position = 0;
-                    var par = new AddTorrentParams { SavePath = "C:/Downloads", ResumeData = torrent.ResumeData };
+                    MemoryStream ms = new MemoryStream();
+                    MemoryStream msInfo = new MemoryStream();
+
+                    db.FileStorage.Download(torrent.File, msInfo);
+                    msInfo.Position = 0;
+
+                    db.FileStorage.Download(torrent.ResumeData, ms);
+                    ms.Position = 0;
+
+                    var par = new AddTorrentParams { ResumeData = ms.GetBuffer(), TorrentInfo = new TorrentInfo(msInfo.GetBuffer()) };
                     this.Session.AddTorrent(par);
                 }
             }
@@ -82,7 +99,11 @@ namespace NewTor.ViewModel
                 var tor = cools.FindOne(x => x.Hash.Equals(e.Handle.TorrentFile.InfoHash));
                 if (tor != null)
                 {
-                    tor.ResumeData = e.ResumeData;
+                    MemoryStream ms = new MemoryStream(e.ResumeData);
+                    ms.Position = 0;
+                    var fadded = db.FileStorage.Upload(Guid.NewGuid().ToString(), ms);
+                    if (!string.IsNullOrWhiteSpace(tor.ResumeData)) db.FileStorage.Delete(tor.ResumeData);
+                    tor.ResumeData = fadded.Id;
                     cools.Update(tor);
                 }
             }
@@ -128,12 +149,16 @@ namespace NewTor.ViewModel
                 {
                     var cools = db.GetCollection<SessionState>("SessionState");
                     var Sstate = cools.FindAll().FirstOrDefault();
+                    var ms = new MemoryStream(state);
+                    ms.Position = 0;
+                    var fadded = db.FileStorage.Upload(Guid.NewGuid().ToString(), ms);
                     if (Sstate != null)
                     {
-                        Sstate.State = state;
+                        if (!string.IsNullOrWhiteSpace(Sstate.State)) db.FileStorage.Delete(Sstate.State);
+                        Sstate.State = fadded.Id;
                         cools.Update(Sstate);
                     }
-                    else cools.Insert(new SessionState { UTC_CreationDate = DateTime.UtcNow, State = state });
+                    else cools.Insert(new SessionState { UTC_CreationDate = DateTime.UtcNow, State = fadded.Id });
                 }
             }
 
